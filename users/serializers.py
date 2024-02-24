@@ -3,6 +3,7 @@ from .models import User, UserConfirmation, VIA_EMAIL, VIA_PHONE, NEW, CODE_VERI
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, PermissionDenied, NotFound
+from django.core.validators import FileExtensionValidator
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -43,7 +44,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def auth_validate(data):
-        print(data)
+        # print(data)
         user_input = str(data.get('email_phone_number')).lower()
         input_type = check_email_or_phone(user_input)
         if input_type == "email":
@@ -89,66 +90,67 @@ class SignUpSerializer(serializers.ModelSerializer):
         return data
 
 
-# class ChangeUserInformation(serializers.Serializer):
-#     first_name = serializers.CharField(write_only=True, required=True)
-#     last_name = serializers.CharField(write_only=True, required=True)
-#     username = serializers.CharField(write_only=True, required=True)
-#     password = serializers.CharField(write_only=True, required=True)
-#     confirm_password = serializers.CharField(write_only=True, required=True)
-#
-#     def validate(self, data):
-#         password = data.get('password', None)
-#         confirm_password = data.get('confirm_password', None)
-#         if password !=confirm_password:
-#             raise ValidationError(
-#                 {
-#                     "message": "Parolingiz va tasdiqlash parolingiz bir-biriga teng emas"
-#                 }
-#             )
-#         if password:
-#             validate_password(password)
-#             validate_password(confirm_password)
-#
-#         return data
-#
-#     def validate_username(self, username):
-#         if len(username) < 5 or len(username) > 30:
-#             raise ValidationError(
-#                 {
-#                     "message": "Username must be between 5 and 30 characters long"
-#                 }
-#             )
-#         if username.isdigit():
-#             raise ValidationError(
-#                 {
-#                     "message": "This username is entirely numeric"
-#                 }
-#             )
-#         return username
-#
-#     def update(self, instance, validated_data):
-#
-#         instance.first_name = validated_data.get('first_name', instance.first_name)
-#         instance.last_name = validated_data.get('last_name', instance.last_name)
-#         instance.password = validated_data.get('password', instance.password)
-#         instance.username = validated_data.get('username', instance.username)
-#         if validated_data.get('password'):
-#             instance.set_password(validated_data.get('password'))
-#         if instance.auth_status == CODE_VERIFIED:
-#             instance.auth_status = DONE
-#         instance.save()
-#         return instance
-#
-#
-# class ChangeUserPhotoSerializer(serializers.Serializer):
-#     photo = serializers.ImageField(validators=[FileExtensionValidator(allowed_extensions=[
-#         'jpg', 'jpeg', 'png', 'heic', 'heif'
-#     ])])
-#
-#     def update(self, instance, validated_data):
-#         photo = validated_data.get('photo')
-#         if photo:
-#             instance.photo = photo
-#             instance.auth_status = PHOTO_DONE
-#             instance.save()
+class ChangeUserInformation(serializers.Serializer):
+    first_name = serializers.CharField(write_only=True, required=True)
+    last_name = serializers.CharField(write_only=True, required=True)
+    username = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True, required=True)
+    confirm_password = serializers.CharField(write_only=True, required=True)
+
+    def validate(self, data):
+        password = data.get('password', None)
+        confirm_password = data.get('confirm_password', None)
+        if password !=confirm_password:
+            raise ValidationError(
+                {
+                    "message": "Parolingiz va tasdiqlash parolingiz bir-biriga teng emas"
+                }
+            )
+        if password:
+            validate_password(password)
+            validate_password(confirm_password)
+
+        return data
+
+    def validate_username(self, username):
+        if len(username) < 5 or len(username) > 30:
+            raise ValidationError(
+                {
+                    "message": "Username must be between 5 and 30 characters long"
+                }
+            )
+        if username.isdigit():
+            raise ValidationError(
+                {
+                    "message": "This username is entirely numeric"
+                }
+            )
+        return username
+
+    def update(self, instance, validated_data):
+
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.password = validated_data.get('password', instance.password)
+        instance.username = validated_data.get('username', instance.username)
+        if validated_data.get('password'):
+            instance.set_password(validated_data.get('password'))
+        if instance.auth_status == CODE_VERIFIED:
+            instance.auth_status = DONE
+        instance.save()
         return instance
+
+
+class ChangeUserPhotoSerializer(serializers.Serializer):
+    photo = serializers.ImageField(validators=[FileExtensionValidator(allowed_extensions=[
+        'jpg', 'jpeg', 'png', 'heic', 'heif'
+    ])])
+
+    def update(self, instance, validated_data):
+        photo = validated_data.get('photo')
+        if photo:
+            instance.photo = photo
+            instance.auth_status = PHOTO_DONE
+            instance.save()
+        return instance
+
