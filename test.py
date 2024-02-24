@@ -1,4 +1,4 @@
-import random
-
+*n, = 'Python'
+print(n)
 
 
