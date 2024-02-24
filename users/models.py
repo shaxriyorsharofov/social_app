@@ -55,7 +55,7 @@ class User(AbstractUser, BaseModel):
 
     def check_username(self):
         if not self.username:
-            temp_username = f'instagram-{uuid.uuid4().__str__().split("-")[-1]}'
+            temp_username = f'username-{uuid.uuid4().__str__().split("-")[-1]}'
             while User.objects.filter(username=temp_username):
                 temp_username = f"{temp_username}{random.randint(0,9)}"
             self.username = temp_username
